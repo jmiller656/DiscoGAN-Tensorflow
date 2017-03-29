@@ -4,29 +4,15 @@ import os
 import random
 import scipy.misc
 
-marios = os.listdir("sprite/mario")
-sonics = os.listdir("sprite/sonic")
-
 """
-Get batch from domain A
+Get batch from domain
 """
-def get_batch_a(size):
+def get_batch(size,domain):
+	samples = os.listdir("images/"+domain)
 	images =[]
-	indices = random.sample(range(0,len(marios)),size)
+	indices = random.sample(range(0,len(samples)),size)
 	for i in indices:
-		img = scipy.misc.imread("sprite/mario/"+marios[i])
-		img = preprocess(img)
-		images.append(img)
-	return np.asarray(images)
-
-"""
-Get batch from domain b
-"""
-def get_batch_b(size):
-	images =[]
-        indices = random.sample(range(0,len(sonics)),size)
-        for i in indices:
-                img = scipy.misc.imread("sprite/sonic/"+sonics[i])
+		img = scipy.misc.imread("images/"+domain+"/"+samples[i])
 		img = preprocess(img)
 		images.append(img)
 	return np.asarray(images)
@@ -44,4 +30,11 @@ Postprocess image
 """
 def postprocess(img):
 	return (img+1.)/2
+
+"""
+Save image
+"""
+def save(filename,img):
+	scipy.misc.imsave(filename,postprocess(img))
+			
 

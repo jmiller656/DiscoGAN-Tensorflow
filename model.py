@@ -4,7 +4,6 @@ import utils
 import os
 import scipy.misc
 
-
 LR = 2e-4
 B1 = 0.5
 B2 = 0.999
@@ -16,6 +15,13 @@ sample_frequency = 10
 sample_overlap = 500
 save_frequency = 1000
 
+gen_a_dir = 'generator a->b'
+gen_b_dir = 'generator b->a'
+rec_a_dir = 'reconstruct a'
+rec_b_dir = 'reconstruct b'
+
+domainA = "SHOES"
+domainB = "EDGES"
 
 #Input placeholders
 x_a = tf.placeholder(tf.float32,shape=[BATCH_SIZE,64,64,3],name="xa")
@@ -83,14 +89,14 @@ trainer_G = tf.train.AdamOptimizer(LR,beta1=B1,beta2=B2).minimize(l_g,var_list=g
 
 init = tf.global_variables_initializer()	
 
-if not os.path.exists('generator a->b'):
-		os.makedirs('generator a->b')
-if not os.path.exists('generator b->a'):
-		os.makedirs('generator b->a')
-if not os.path.exists('reconstruct b'):
-		os.makedirs('reconstruct b')
-if not os.path.exists('reconstruct a'):
-		os.makedirs('reconstruct a')
+if not os.path.exists(gen_a_dir):
+		os.makedirs(gen_a_dir)
+if not os.path.exists(gen_b_dir):
+		os.makedirs(gen_b_dir)
+if not os.path.exists(rec_b_dir):
+		os.makedirs(rec_b_dir)
+if not os.path.exists(rec_a_dir):
+		os.makedirs(rec_a_dir)
 
 with tf.Session() as sess:
 	
@@ -104,15 +110,15 @@ with tf.Session() as sess:
 
 	for i in range(iterations):
 
-		realA = data.get_batch_a(BATCH_SIZE)
-		realB = data.get_batch_b(BATCH_SIZE)
+		realA = data.get_batch(BATCH_SIZE,domainA)
+		realB = data.get_batch(BATCH_SIZE,domainB)
 
 		_,dLoss = sess.run([trainer_D,l_disc],feed_dict={x_a:realA,x_b:realB})	
 	
 		_,gLoss = sess.run([trainer_G,l_g],feed_dict={x_a:realA,x_b:realB})
 		
-		realA = data.get_batch_a(BATCH_SIZE)
-		realB = data.get_batch_b(BATCH_SIZE)
+		realA = data.get_batch(BATCH_SIZE,domainA)
+		realB = data.get_batch(BATCH_SIZE,domainB)
 
 		_,gLoss = sess.run([trainer_G,l_g],feed_dict={x_a:realA,x_b:realB})
 
@@ -120,10 +126,10 @@ with tf.Session() as sess:
 		
 		if i % sample_frequency == 0:
 			out_a,out_b,out_ab,out_ba = sess.run([g_ba,g_ab,g_aba,g_bab],feed_dict={x_a:realA,x_b:realB})
-			scipy.misc.imsave("a/gen"+str(i%sample_overlap)+'.png',data.postprocess(out_a[0]))
-			scipy.misc.imsave("b/gen"+str(i%sample_overlap)+'.png',data.postprocess(out_b[0]))
-			scipy.misc.imsave("ba/gen"+str(i%sample_overlap)+'.png',data.postprocess(out_ba[0]))
-			scipy.misc.imsave("ab/gen"+str(i%sample_overlap)+'.png',data.postprocess(out_ab[0]))
+			data.save(gen_a_dir+"/img"+str(i%sample_overlap)+'.png',out_a[0])
+			data.save(gen_b_dir+"/img"+str(i%sample_overlap)+'.png',out_b[0])
+			data.save(rec_a_dir+"/img"+str(i%sample_overlap)+'.png',out_ba[0])
+			data.save(rec_b_dir+"/img"+str(i%sample_overlap)+'.png',out_ab[0])
 		if i % save_frequency == 0:
 			if not os.path.exists(model_directory):
 				os.makedirs(model_directory)
