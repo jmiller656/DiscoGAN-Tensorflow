@@ -10,7 +10,11 @@ B1 = 0.5
 B2 = 0.999
 
 BATCH_SIZE = 10
+iterations = 50000
 model_directory = "models"
+sample_frequency = 10
+sample_overlap = 500
+save_frequency = 1000
 
 
 #Input placeholders
@@ -74,7 +78,7 @@ for v in tf.trainable_variables():
 		gen_params.append(v)
 
 
-trainer_Da = tf.train.AdamOptimizer(LR,beta1=B1,beta2=B2).minimize(l_disc,var_list=disc_params)
+trainer_D = tf.train.AdamOptimizer(LR,beta1=B1,beta2=B2).minimize(l_disc,var_list=disc_params)
 trainer_G = tf.train.AdamOptimizer(LR,beta1=B1,beta2=B2).minimize(l_g,var_list=gen_params)
 
 init = tf.global_variables_initializer()	
@@ -98,7 +102,7 @@ with tf.Session() as sess:
 	except:
 		print("Previous weights not found")		
 
-	for i in range(50000):
+	for i in range(iterations):
 
 		realA = data.get_batch_a(BATCH_SIZE)
 		realB = data.get_batch_b(BATCH_SIZE)
@@ -114,13 +118,13 @@ with tf.Session() as sess:
 
 		print("Generator Loss: " + str(gLoss) + "\tDiscriminator Loss: " + str(dLoss)) 
 		
-		if i %10 == 0:
+		if i % sample_frequency == 0:
 			out_a,out_b,out_ab,out_ba = sess.run([g_ba,g_ab,g_aba,g_bab],feed_dict={x_a:realA,x_b:realB})
-			scipy.misc.imsave("a/gen"+str(i%500)+'.png',data.postprocess(out_a[0]))
-			scipy.misc.imsave("b/gen"+str(i%500)+'.png',data.postprocess(out_b[0]))
-			scipy.misc.imsave("ba/gen"+str(i%500)+'.png',data.postprocess(out_ba[0]))
-			scipy.misc.imsave("ab/gen"+str(i%500)+'.png',data.postprocess(out_ab[0]))
-		if i % 1000 == 0:
+			scipy.misc.imsave("a/gen"+str(i%sample_overlap)+'.png',data.postprocess(out_a[0]))
+			scipy.misc.imsave("b/gen"+str(i%sample_overlap)+'.png',data.postprocess(out_b[0]))
+			scipy.misc.imsave("ba/gen"+str(i%sample_overlap)+'.png',data.postprocess(out_ba[0]))
+			scipy.misc.imsave("ab/gen"+str(i%sample_overlap)+'.png',data.postprocess(out_ab[0]))
+		if i % save_frequency == 0:
 			if not os.path.exists(model_directory):
 				os.makedirs(model_directory)
 			saver.save(sess,model_directory+'/model-'+str(i)+'.ckpt')
