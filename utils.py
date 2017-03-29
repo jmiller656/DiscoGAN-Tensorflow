@@ -160,5 +160,5 @@ def discriminator(x,name="discriminator",reuse=False):
 		out = conv_layer(conv_4,[4,4,int(conv_4.get_shape()[-1]),1],[1],activation=None,stride=4,batch_norm=None,name="d_conv_5",reuse=reuse)
 		out = tf.squeeze(out)
 		return out
-
 	
+
