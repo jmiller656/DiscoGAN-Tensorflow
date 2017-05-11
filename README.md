@@ -6,10 +6,10 @@ An implementation of [Learning to Discover Cross-Domain Relations with Generativ
 - scipy
 
 ## Training
-python main.py
+`python main.py`
 
 ## Training details
 Currently the data utils file works on domains from the celeba dataset
 
 ## Remarks
-As it currently stands, much of the configuration has to be done inside the model.py file. I will soon be making it take command line arguments, download datasets automatically, etc. 
+As it currently stands, much of the configuration has to be done inside the `model.py` file. I will soon be making it take command line arguments, download datasets automatically, etc. 
