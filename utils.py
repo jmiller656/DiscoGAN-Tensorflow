@@ -116,7 +116,7 @@ def huber_loss(logits,labels,max_gradient=1.0):
 """
 Helper function to build Convolutional autoEncoder, used as the generator network
 """
-def generator(x,batch_size,name="generator",reuse=False):
+def generator(x,name="generator",im_size=64,channels=3,reuse=False):
 	with tf.variable_scope(name) as scope:
 		if reuse:
 			scope.reuse_variables()
@@ -128,14 +128,14 @@ def generator(x,batch_size,name="generator",reuse=False):
 		g_bn4 = batch_norm(name='g_bn4')
 		g_bn5 = batch_norm(name='g_bn5')
 
-		conv_1 = conv_layer(x,[4,4,int(x.get_shape()[-1]),64],[64],activation=lrelu,batch_norm=None,name="g_conv_1",reuse=reuse)
-		conv_2 = conv_layer(conv_1,[4,4,int(conv_1.get_shape()[-1]),64*2],[64*2],activation=lrelu,batch_norm=g_bn0,name="g_conv_2",reuse=reuse)
-		conv_3 = conv_layer(conv_2,[4,4,int(conv_2.get_shape()[-1]),64*4],[64*4],activation=lrelu,batch_norm=g_bn1,name="g_conv_3",reuse=reuse)
-		conv_4 = conv_layer(conv_3,[4,4,int(conv_3.get_shape()[-1]),64*8],[64*8],activation=lrelu,batch_norm=g_bn2,name="g_conv_4",reuse=reuse)
-		conv_t_1 = conv_layer_t(conv_4,[4,4,64,int(conv_4.get_shape()[-1])],[64],[batch_size,8,8,64],activation=lrelu,batch_norm=g_bn3,name="g_deconv_1",reuse=reuse)
-		conv_t_2 = conv_layer_t(conv_t_1,[4,4,32,int(conv_t_1.get_shape()[-1])],[32],[batch_size,16,16,32],activation=lrelu,batch_norm=g_bn4,name="g_deconv_2",reuse=reuse)
-		conv_t_3 = conv_layer_t(conv_t_2,[4,4,16,int(conv_t_2.get_shape()[-1])],[16],[batch_size,32,32,16],activation=lrelu,batch_norm=g_bn5,name="g_deconv_3",reuse=reuse)
-		conv_t_4 = conv_layer_t(conv_t_3,[4,4,3,int(conv_t_3.get_shape()[-1])],[3],[batch_size,64,64,3],activation=None,batch_norm=None,name="g_deconv_4",reuse=reuse)
+		conv_1 = conv_layer(x,[4,4,int(x.get_shape()[-1]),im_size],[im_size],activation=lrelu,batch_norm=None,name="g_conv_1",reuse=reuse)
+		conv_2 = conv_layer(conv_1,[4,4,int(conv_1.get_shape()[-1]),im_size*2],[im_size*2],activation=lrelu,batch_norm=g_bn0,name="g_conv_2",reuse=reuse)
+		conv_3 = conv_layer(conv_2,[4,4,int(conv_2.get_shape()[-1]),im_size*4],[im_size*4],activation=lrelu,batch_norm=g_bn1,name="g_conv_3",reuse=reuse)
+		conv_4 = conv_layer(conv_3,[4,4,int(conv_3.get_shape()[-1]),im_size*8],[im_size*8],activation=lrelu,batch_norm=g_bn2,name="g_conv_4",reuse=reuse)
+		conv_t_1 = conv_layer_t(conv_4,[4,4,im_size,int(conv_4.get_shape()[-1])],[im_size],[tf.shape(x)[0],im_size/8,im_size/8,im_size],activation=lrelu,batch_norm=g_bn3,name="g_deconv_1",reuse=reuse)
+		conv_t_2 = conv_layer_t(conv_t_1,[4,4,im_size/2,int(conv_t_1.get_shape()[-1])],[im_size/2],[tf.shape(x)[0],im_size/4,im_size/4,im_size/2],activation=lrelu,batch_norm=g_bn4,name="g_deconv_2",reuse=reuse)
+		conv_t_3 = conv_layer_t(conv_t_2,[4,4,im_size/4,int(conv_t_2.get_shape()[-1])],[im_size/4],[tf.shape(x)[0],im_size/2,im_size/2,im_size/4],activation=lrelu,batch_norm=g_bn5,name="g_deconv_3",reuse=reuse)
+		conv_t_4 = conv_layer_t(conv_t_3,[4,4,channels,int(conv_t_3.get_shape()[-1])],[channels],[tf.shape(x)[0],im_size,im_size,3],activation=None,batch_norm=None,name="g_deconv_4",reuse=reuse)
 
 		out = conv_t_4
 	
@@ -144,7 +144,7 @@ def generator(x,batch_size,name="generator",reuse=False):
 """
 Helper function to build discriminator network	
 """
-def discriminator(x,name="discriminator",reuse=False):
+def discriminator(x,name="discriminator",im_size=64,reuse=False):
 	with tf.variable_scope(name) as scope:
 		if reuse:
 			scope.reuse_variables()
@@ -153,10 +153,10 @@ def discriminator(x,name="discriminator",reuse=False):
 		d_bn1 = batch_norm(name='d_bn1')
 		d_bn2 = batch_norm(name='d_bn2')		
 
-		conv_1 = conv_layer(x,[4,4,int(x.get_shape()[-1]),32],[32],activation=lrelu,batch_norm=None,name="d_conv_1",reuse=reuse)
-		conv_2 = conv_layer(conv_1,[4,4,int(conv_1.get_shape()[-1]),16],[16],activation=lrelu,batch_norm=d_bn0,name="d_conv_2",reuse=reuse)
-		conv_3 = conv_layer(conv_2,[4,4,int(conv_2.get_shape()[-1]),8],[8],activation=lrelu,batch_norm=d_bn1,name="d_conv_3",reuse=reuse)
-		conv_4 = conv_layer(conv_3,[4,4,int(conv_3.get_shape()[-1]),4],[4],activation=lrelu,batch_norm=d_bn2,name="d_conv_4",reuse=reuse)
+		conv_1 = conv_layer(x,[4,4,int(x.get_shape()[-1]),im_size/2],[im_size/2],activation=lrelu,batch_norm=None,name="d_conv_1",reuse=reuse)
+		conv_2 = conv_layer(conv_1,[4,4,int(conv_1.get_shape()[-1]),im_size/4],[im_size/4],activation=lrelu,batch_norm=d_bn0,name="d_conv_2",reuse=reuse)
+		conv_3 = conv_layer(conv_2,[4,4,int(conv_2.get_shape()[-1]),im_size/8],[im_size/8],activation=lrelu,batch_norm=d_bn1,name="d_conv_3",reuse=reuse)
+		conv_4 = conv_layer(conv_3,[4,4,int(conv_3.get_shape()[-1]),im_size/16],[im_size/16],activation=lrelu,batch_norm=d_bn2,name="d_conv_4",reuse=reuse)
 		out = conv_layer(conv_4,[4,4,int(conv_4.get_shape()[-1]),1],[1],activation=None,stride=4,batch_norm=None,name="d_conv_5",reuse=reuse)
 		out = tf.squeeze(out)
 		return out
