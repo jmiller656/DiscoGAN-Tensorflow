@@ -12,4 +12,4 @@ An implementation of [Learning to Discover Cross-Domain Relations with Generativ
 Currently the data utils file works on domains from the celeba dataset
 
 ## Remarks
-As it currently stands, much of the configuration has to be done inside the `model.py` file. I will soon be making it take command line arguments, download datasets automatically, etc. 
+As it currently stands, I have refactored much of the model and extracted it to `discoGAN.py`. I will soon be making it take command line arguments, download datasets automatically, etc. As mentioned before, there are now some barebones utilities to work with the celeba dataset.
