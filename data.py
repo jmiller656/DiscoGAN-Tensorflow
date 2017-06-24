@@ -15,7 +15,7 @@ im_size = 64
 Preload celeba dataset
 """
 def load_celeba():
-	print "loading celeba"
+	print("loading celeba")
 	f = open('images/list_attr_celeba.txt')
 	t = f.readline()
 	t = f.readline()
