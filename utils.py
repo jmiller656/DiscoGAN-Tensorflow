@@ -128,13 +128,17 @@ def generator(x,name="generator",im_size=64,channels=3,reuse=False):
 		g_bn4 = batch_norm(name='g_bn4')
 		g_bn5 = batch_norm(name='g_bn5')
 
+		im_div_2 = im_size/2 if int(im_size/2) >= 1 else 1
+		im_div_4 = im_size/4 if int(im_size/4) >= 1 else 1
+		im_div_8 = im_size/8 if int(im_size/8) >= 1 else 1
+
 		conv_1 = conv_layer(x,[4,4,int(x.get_shape()[-1]),im_size],[im_size],activation=lrelu,batch_norm=None,name="g_conv_1",reuse=reuse)
 		conv_2 = conv_layer(conv_1,[4,4,int(conv_1.get_shape()[-1]),im_size*2],[im_size*2],activation=lrelu,batch_norm=g_bn0,name="g_conv_2",reuse=reuse)
 		conv_3 = conv_layer(conv_2,[4,4,int(conv_2.get_shape()[-1]),im_size*4],[im_size*4],activation=lrelu,batch_norm=g_bn1,name="g_conv_3",reuse=reuse)
 		conv_4 = conv_layer(conv_3,[4,4,int(conv_3.get_shape()[-1]),im_size*8],[im_size*8],activation=lrelu,batch_norm=g_bn2,name="g_conv_4",reuse=reuse)
-		conv_t_1 = conv_layer_t(conv_4,[4,4,im_size,int(conv_4.get_shape()[-1])],[im_size],[tf.shape(x)[0],im_size/8,im_size/8,im_size],activation=lrelu,batch_norm=g_bn3,name="g_deconv_1",reuse=reuse)
-		conv_t_2 = conv_layer_t(conv_t_1,[4,4,im_size/2,int(conv_t_1.get_shape()[-1])],[im_size/2],[tf.shape(x)[0],im_size/4,im_size/4,im_size/2],activation=lrelu,batch_norm=g_bn4,name="g_deconv_2",reuse=reuse)
-		conv_t_3 = conv_layer_t(conv_t_2,[4,4,im_size/4,int(conv_t_2.get_shape()[-1])],[im_size/4],[tf.shape(x)[0],im_size/2,im_size/2,im_size/4],activation=lrelu,batch_norm=g_bn5,name="g_deconv_3",reuse=reuse)
+		conv_t_1 = conv_layer_t(conv_4,[4,4,im_size,int(conv_4.get_shape()[-1])],[im_size],[tf.shape(x)[0],im_div_8,im_div_8,im_size],activation=lrelu,batch_norm=g_bn3,name="g_deconv_1",reuse=reuse)
+		conv_t_2 = conv_layer_t(conv_t_1,[4,4,im_div_2,int(conv_t_1.get_shape()[-1])],[im_div_2],[tf.shape(x)[0],im_div_4,im_div_4,im_div_2],activation=lrelu,batch_norm=g_bn4,name="g_deconv_2",reuse=reuse)
+		conv_t_3 = conv_layer_t(conv_t_2,[4,4,im_div_4,int(conv_t_2.get_shape()[-1])],[im_div_4],[tf.shape(x)[0],im_div_2,im_div_2,im_div_4],activation=lrelu,batch_norm=g_bn5,name="g_deconv_3",reuse=reuse)
 		conv_t_4 = conv_layer_t(conv_t_3,[4,4,channels,int(conv_t_3.get_shape()[-1])],[channels],[tf.shape(x)[0],im_size,im_size,3],activation=None,batch_norm=None,name="g_deconv_4",reuse=reuse)
 
 		out = conv_t_4
@@ -151,12 +155,17 @@ def discriminator(x,name="discriminator",im_size=64,reuse=False):
 
 		d_bn0 = batch_norm(name='d_bn0')
 		d_bn1 = batch_norm(name='d_bn1')
-		d_bn2 = batch_norm(name='d_bn2')		
+		d_bn2 = batch_norm(name='d_bn2')	
 
-		conv_1 = conv_layer(x,[4,4,int(x.get_shape()[-1]),im_size/2],[im_size/2],activation=lrelu,batch_norm=None,name="d_conv_1",reuse=reuse)
-		conv_2 = conv_layer(conv_1,[4,4,int(conv_1.get_shape()[-1]),im_size/4],[im_size/4],activation=lrelu,batch_norm=d_bn0,name="d_conv_2",reuse=reuse)
-		conv_3 = conv_layer(conv_2,[4,4,int(conv_2.get_shape()[-1]),im_size/8],[im_size/8],activation=lrelu,batch_norm=d_bn1,name="d_conv_3",reuse=reuse)
-		conv_4 = conv_layer(conv_3,[4,4,int(conv_3.get_shape()[-1]),im_size/16],[im_size/16],activation=lrelu,batch_norm=d_bn2,name="d_conv_4",reuse=reuse)
+		im_div_2 = im_size/2 if int(im_size/2) >= 1 else 1
+		im_div_4 = im_size/4 if int(im_size/4) >= 1 else 1
+		im_div_8 = im_size/8 if int(im_size/8) >= 1 else 1
+		im_div_16= im_size/16 if int(im_size/16) >= 1 else 1	
+
+		conv_1 = conv_layer(x,[4,4,int(x.get_shape()[-1]),im_div_2],[im_div_2],activation=lrelu,batch_norm=None,name="d_conv_1",reuse=reuse)
+		conv_2 = conv_layer(conv_1,[4,4,int(conv_1.get_shape()[-1]),im_div_4],[im_div_4],activation=lrelu,batch_norm=d_bn0,name="d_conv_2",reuse=reuse)
+		conv_3 = conv_layer(conv_2,[4,4,int(conv_2.get_shape()[-1]),im_div_8],[im_div_8],activation=lrelu,batch_norm=d_bn1,name="d_conv_3",reuse=reuse)
+		conv_4 = conv_layer(conv_3,[4,4,int(conv_3.get_shape()[-1]),im_div_16],[im_div_16],activation=lrelu,batch_norm=d_bn2,name="d_conv_4",reuse=reuse)
 		out = conv_layer(conv_4,[4,4,int(conv_4.get_shape()[-1]),1],[1],activation=None,stride=4,batch_norm=None,name="d_conv_5",reuse=reuse)
 		out = tf.squeeze(out)
 		return out
