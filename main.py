@@ -1,7 +1,9 @@
 import tensorflow as tf
+from discoGAN import DiscoGAN
 import utils
 
-a = tf.placeholder(tf.float32,[1,64,64,3])
-g = utils.generator(a)
-d = utils.discriminator(g)
-print d
+print("Building Model")
+network = DiscoGAN()
+print("Beginning training")
+network.train()
+
