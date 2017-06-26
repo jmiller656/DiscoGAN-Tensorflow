@@ -1,10 +1,12 @@
 import numpy as np
 import zipfile
-import cv2
 import os
 import random
 import scipy.misc
-from StringIO import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 domainA = []
 domainB = []
@@ -40,15 +42,6 @@ Get batch from domain
 def get_batch(size,domain):
 	if len(domainA) == 0 or len(domainB) == 0:
 		load_celeba()
-	"""
-	samples = os.listdir("images/"+domain)
-	images =[]
-	indices = random.sample(range(0,len(samples)),size)
-	for i in indices:
-		img = scipy.misc.imread("images/"+domain+"/"+samples[i])
-		img = preprocess(img)
-		images.append(img)
-	return np.asarray(images)"""
 	if domain == 'a':
 		samples = domainA
 	else:
@@ -58,9 +51,14 @@ def get_batch(size,domain):
 	zfile = zipfile.ZipFile('images/celeba.zip','r')
 	for i in indices:
 		data = zfile.read('img_align_celeba/'+samples[i])
-		img = scipy.misc.imread(StringIO(data)) 
+		tmp = open('temp.jpg','wb')
+		tmp.write(data)
+		tmp.close()
+		#print(StringIO(data))
+		img = scipy.misc.imread('temp.jpg') 
 		img = preprocess(img)
 		images.append(img)
+	os.remove('temp.jpg')
 
 	return np.asarray(images)
 	

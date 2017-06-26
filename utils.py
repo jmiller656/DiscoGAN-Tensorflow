@@ -72,6 +72,9 @@ def conv_layer_t(x,w_shape,b_shape,shape,activation=tf.nn.relu,batch_norm=None,s
 			scope.reuse_variables()
 		w = weight_var(w_shape,name="w"+name)
 		b = bias_var(b_shape,name="b"+name)
+		for i in range(1,len(shape)):
+			if isinstance(shape[i],float):
+				shape[i] = int(shape[i])
 		h = conv2d_t(x,w,shape)+b
 		if batch_norm is not None:
 			h = batch_norm(h)
